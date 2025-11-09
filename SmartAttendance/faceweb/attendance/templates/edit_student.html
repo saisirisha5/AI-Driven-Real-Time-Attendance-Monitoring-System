@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Student</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-4xl font-bold mb-4">Edit Student Details</h1>
+    <a href="{% url 'view_students' %}" class="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+      ⬅ Back to Students
+    </a>
+  </header>
+
+  <main class="flex-grow flex justify-center items-start mt-4">
+    <div class="bg-white text-black rounded-2xl shadow-2xl p-8 w-full max-w-sm transition-transform transform hover:scale-[1.01]">
+      <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all duration-300">
+          Save Changes
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
+    &copy; 2025 Sirisha. All Rights Reserved.
+  </footer>
+
+</body>
+</html>

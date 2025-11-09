@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .banner-button {
+      background-color: #ffffff;
+      color: #000000;
+      padding: 20px 50px;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 10px;
+      border-radius: 30px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .banner-button:hover {
+      background-color: #ff5722;
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 text-white font-sans">
+
+  <!-- Header Section -->
+  <header class="text-center py-10">
+    <h1 class="text-5xl font-bold mb-6">Admin Dashboard</h1>
+    <p class="text-lg mb-6">Manage Attendance and Students</p>
+  </header>
+
+  <!-- Buttons Section -->
+  <main class="text-center mb-10">
+    <a href="{% url 'view_attendance' %}" class="banner-button inline-block">
+      View Attendance
+    </a>
+    <a href="{% url 'add_face' %}" class="banner-button inline-block">
+      Add Face Data
+    </a>
+    <a href="{% url 'view_students' %}" class="banner-button inline-block">
+      View All Students
+    </a>
+    <a href="{% url 'admin_logout' %}" class="banner-button inline-block bg-red-600 text-white hover:bg-red-700">
+      Logout
+    </a>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
+    &copy; 2025 Sirisha. All Rights Reserved.
+  </footer>
+
+</body>
+</html>

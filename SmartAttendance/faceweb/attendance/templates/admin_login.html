@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 min-h-screen flex flex-col text-white font-sans">
+
+  <!-- Header -->
+  <header class="text-center py-10">
+    <h1 class="text-4xl font-bold mb-4">Admin Login</h1>
+    <p class="text-lg mb-6">Access the Face Recognition Attendance Dashboard</p>
+    <a href="{% url 'home' %}" class="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+      ⬅ Back to Home
+    </a>
+  </header>
+
+  <!-- Login Card -->
+  <main class="flex-grow flex justify-center items-start mt-4">
+    <div class="bg-white text-black rounded-2xl shadow-2xl p-8 w-full max-w-sm transition-transform transform hover:scale-[1.01]">
+
+      <h2 class="text-2xl font-extrabold text-center mb-6 text-purple-700">Admin Panel Login</h2>
+
+      <!-- Inline Error Message -->
+      {% if error_message %}
+        <div class="mb-4 p-3 rounded-md text-center text-sm font-medium bg-red-100 text-red-700 border border-red-400">
+          {{ error_message }}
+        </div>
+      {% endif %}
+
+      <!-- Login Form -->
+      <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <div>
+          <label for="username" class="font-semibold text-gray-700">Username</label>
+          <input type="text" name="username" id="username"
+                 class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label for="password" class="font-semibold text-gray-700">Password</label>
+          <input type="password" name="password" id="password"
+                 class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-2 focus:ring-purple-500 focus:outline-none">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all duration-300">
+          Login
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
+    &copy; 2025 Sirisha. All Rights Reserved.
+  </footer>
+</body>
+</html>

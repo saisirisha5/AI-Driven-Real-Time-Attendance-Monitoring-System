@@ -1,34 +1,60 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Attendance Details - {{ name }}</title>
+  <title>{{ name }} - Attendance History</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 min-h-screen text-white font-sans">
+
+<body class="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 min-h-screen text-white font-sans">
 
   <!-- Header -->
-  <header class="text-center py-10">
-    <h2 class="text-4xl font-bold mb-2">Attendance History</h2>
-    <p class="text-xl mb-4">Student: <span class="font-semibold">{{ name }}</span></p>
-    <a href="{% url 'view_attendance' %}" class="text-sm underline hover:text-gray-200">← Back to list</a>
+  <header class="text-center py-8">
+    <h1 class="text-4xl font-bold mb-2">{{ name }}'s Attendance History</h1>
+    <a href="{% url 'view_attendance' %}" class="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
+      ⬅ Back to Attendance
+    </a>
   </header>
 
-  <!-- Attendance List -->
-  <div class="max-w-3xl mx-auto bg-white text-black rounded-lg shadow-lg p-6">
-    {% if history %}
-      <ul class="space-y-3">
-        {% for record in history %}
-          <li class="border-b py-2 flex justify-between">
-            <span class="font-medium">Timestamp:</span>
-            <span>{{ record.timestamp }}</span>
-          </li>
-        {% endfor %}
-      </ul>
+  <!-- Student Info -->
+  <section class="flex flex-col items-center text-black bg-white mx-auto p-6 w-11/12 max-w-3xl rounded-2xl shadow-2xl mb-10">
+    {% if student_data.image_base64 %}
+      <img src="data:image/jpeg;base64,{{ student_data.image_base64 }}" alt="{{ name }}" class="w-32 h-32 rounded-full object-cover border-4 border-purple-500 mb-4 shadow-md">
     {% else %}
-      <p class="text-center text-gray-700">No attendance records found for {{ name }}.</p>
+      <div class="w-32 h-32 rounded-full bg-gray-300 mb-4 flex items-center justify-center text-gray-600">No Image</div>
     {% endif %}
-  </div>
+
+    <h2 class="text-2xl font-bold text-purple-700">{{ name }}</h2>
+    <p class="text-sm text-gray-700">Regd No: {{ student_data.regd_no }}</p>
+    <p class="text-sm text-gray-700 mb-2">Department: {{ student_data.department }}</p>
+  </section>
+
+  <!-- Attendance Records -->
+  <main class="bg-white text-black rounded-2xl shadow-xl mx-auto p-8 w-11/12 max-w-4xl mb-16">
+    <h3 class="text-2xl font-bold mb-6 text-center text-purple-700">Attendance Records</h3>
+
+    {% if history %}
+      <table class="min-w-full border border-gray-300 rounded-lg overflow-hidden">
+        <thead class="bg-purple-600 text-white">
+          <tr>
+            <th class="py-3 px-4 text-left">Date</th>
+            <th class="py-3 px-4 text-left">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in history %}
+            <tr class="border-b hover:bg-gray-100">
+              <td class="py-2 px-4">{{ record.date }}</td>
+              <td class="py-2 px-4">{{ record.time }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-center text-lg mt-4 text-gray-700">No attendance records found for {{ name }}.</p>
+    {% endif %}
+  </main>
 
   <!-- Footer -->
   <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">

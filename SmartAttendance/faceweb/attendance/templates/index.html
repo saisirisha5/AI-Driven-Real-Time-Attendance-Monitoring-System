@@ -10,7 +10,7 @@
     .banner-button {
       background-color: #ffffff;
       color: #000000;
-      padding: 20px 50px;
+      padding: 15px 40px;
       text-align: center;
       text-transform: uppercase;
       font-weight: bold;
@@ -18,12 +18,13 @@
       margin: 10px;
       border-radius: 30px;
       box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .banner-button:hover {
       background-color: #ff5722;
       color: #ffffff;
+      transform: scale(1.05);
     }
 
     .footer {
@@ -36,28 +37,28 @@
     }
   </style>
 </head>
+
 <body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 text-white font-sans">
 
   <!-- Header Section -->
-  <header class="text-center py-10">
+  <header class="text-center py-16">
     <h1 class="text-5xl font-bold mb-6">Face Recognition Attendance</h1>
-    <p class="text-lg mb-6">Automated attendance tracking using face recognition technology</p>
+    <p class="text-lg mb-10">Automated attendance tracking using AI-driven face recognition technology</p>
+
+    <!-- Action Buttons -->
+    <div>
+      <a href="{% url 'admin_login' %}" class="banner-button inline-block">
+        Admin Login
+      </a>
+
+      <!-- Optional: Direct View Attendance button (if already logged in)
+      {% if request.session.admin_logged_in %}
+      <a href="{% url 'view_attendance' %}" class="banner-button inline-block">
+        View Attendance
+      </a>
+      {% endif %} -->
+    </div>
   </header>
-
-  <!-- Image Section -->
-  <div class="flex justify-center mb-10">
-    <img src="{% static 'Att.jpg' %}" alt="Banner" class="w-full max-w-xl rounded-lg shadow-lg">
-  </div>
-
-  <!-- Buttons Section -->
-  <main class="text-center mb-10">
-    <a href="/view_attendance" class="banner-button inline-block">
-      View Attendance
-    </a>
-    <a href="/add_face" class="banner-button inline-block">
-      Add Face Data
-    </a>
-  </main>
 
   <!-- Footer Section -->
   <footer class="footer">
