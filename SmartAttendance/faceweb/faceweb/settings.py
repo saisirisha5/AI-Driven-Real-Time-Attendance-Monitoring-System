@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'attendance'
+    'attendance',
+    'django_crontab',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +127,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'face_images') 
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+CRONJOBS = [
+    # Run every day at 17:35 (5:35 PM)
+    ('35 17 * * *', 'attendance.auto_absentees.mark_absentees'),
+]

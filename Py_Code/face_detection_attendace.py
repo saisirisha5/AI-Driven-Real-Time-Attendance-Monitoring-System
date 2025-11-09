@@ -34,7 +34,7 @@ db = firestore.client()
 # 🔹 Mode Selection
 # -------------------------------------------------------------------
 # Choose between: "static" or "esp32"
-MODE = os.getenv("RUN_MODE", "static")  # default to static if not set
+MODE = "static"  # set "esp32" when cam connected
 
 # -------------------------------------------------------------------
 # 🔹 Fetch Known Encodings from Firebase

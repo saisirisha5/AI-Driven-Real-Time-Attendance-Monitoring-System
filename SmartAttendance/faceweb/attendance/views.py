@@ -183,60 +183,68 @@ def edit_student(request, regd_no):
 def view_attendance(request):
     print("Fetching attendance data...")
 
-    # --- Filters ---
     selected_date = request.GET.get('date')
     selected_name = request.GET.get('name')
 
-    # --- Fetch attendance records ---
-    attendance_ref = db.collection('attendance_records').stream()
-    attendance_data = [r.to_dict() for r in attendance_ref]
+    # Default to today’s date if none selected
+    today = datetime.now().strftime("%Y-%m-%d")
+    target_date = selected_date or today
 
-    # --- Apply Filters ---
-    if selected_date:
-        attendance_data = [r for r in attendance_data if r.get('date') == selected_date]
-    if selected_name:
-        attendance_data = [r for r in attendance_data if selected_name.lower() in r.get('name', '').lower()]
-
-    # --- Latest attendance per student ---
-    latest_attendance = {}
-    for record in attendance_data:
-        name = record.get('name')
-        timestamp = record.get('timestamp')
-        if name:
-            if name not in latest_attendance or timestamp > latest_attendance[name]:
-                latest_attendance[name] = timestamp
-
-    # --- Fetch student data (for images and count) ---
+    # --- Fetch all students ---
     student_ref = db.collection('students').stream()
     student_data = [s.to_dict() for s in student_ref]
     student_images = {s.get('name'): s.get('image_base64') for s in student_data}
     total_students = len(student_data)
 
-    # --- Combine attendance and student data ---
+    # --- Fetch attendance records for that date ---
+    attendance_ref = db.collection('attendance_records').where('date', '==', target_date).stream()
+    attendance_data = [r.to_dict() for r in attendance_ref]
+
+    # --- Apply name filter ---
+    if selected_name:
+        attendance_data = [r for r in attendance_data if selected_name.lower() in r.get('name', '').lower()]
+
+    # --- Build attendance status map ---
+    present_students = {r['name']: r for r in attendance_data if r.get('status', 'Present') == 'Present'}
+    all_names = {s['name'] for s in student_data}
+    absent_students = all_names - set(present_students.keys())
+
+    # --- Combine into a unified student list ---
     students = []
-    for name, timestamp in latest_attendance.items():
+
+    # Present students
+    for name, record in present_students.items():
         students.append({
             'name': name,
-            'last_timestamp': timestamp,
-            'image_base64': student_images.get(name)
+            'last_timestamp': record.get('timestamp'),
+            'image_base64': student_images.get(name),
+            'status': 'Present'
         })
 
-    # --- Attendance Analytics ---
-    today = datetime.now().strftime("%Y-%m-%d")
-    todays_records = [r for r in attendance_data if r.get('date') == today]
-    todays_present = len({r['name'] for r in todays_records})
-    todays_absent = max(total_students - todays_present, 0)
+    # Absent students
+    for name in absent_students:
+        students.append({
+            'name': name,
+            'last_timestamp': 'N/A',
+            'image_base64': student_images.get(name),
+            'status': 'Absent'
+        })
 
-    # Monthly analytics
+    # --- Attendance analytics ---
+    todays_present = len(present_students)
+    todays_absent = len(absent_students)
+
+    # Monthly analytics (approximate for now)
     month_str = datetime.now().strftime("%Y-%m")
-    monthly_records = [r for r in attendance_data if r.get('date', '').startswith(month_str)]
-    monthly_present = len({f"{r['name']}-{r['date']}" for r in monthly_records})
+    monthly_records = db.collection('attendance_records').where('date', '>=', f"{month_str}-01").stream()
+    monthly_records = [r.to_dict() for r in monthly_records]
+    monthly_present = len({f"{r['name']}-{r['date']}" for r in monthly_records if r.get('status', 'Present') == 'Present'})
     monthly_percentage = round((monthly_present / (total_students * 30)) * 100, 2) if total_students else 0
 
-    # --- Context for template ---
+    # --- Context ---
     context = {
         'students': students,
-        'selected_date': selected_date,
+        'selected_date': target_date,
         'selected_name': selected_name,
         'total_students': total_students,
         'todays_present': todays_present,
@@ -246,6 +254,7 @@ def view_attendance(request):
 
     return render(request, 'view_attendance.html', context)
 
+
 def delete_student(request, regd_no):
     """Delete a student record."""
     try:
@@ -254,3 +263,41 @@ def delete_student(request, regd_no):
     except Exception as e:
         messages.error(request, f"❌ Failed to delete student: {e}")
     return redirect('view_students')
+
+# Attendance window
+START_TIME = os.getenv("ATTENDANCE_START_TIME", "09:20")
+END_TIME = os.getenv("ATTENDANCE_END_TIME", "17:30")
+
+def mark_absentees():
+    """
+    Automatically marks absent students after attendance window closes.
+    """
+    now = datetime.now()
+    today_str = now.strftime("%Y-%m-%d")
+
+    print(f"📅 Running absentee marking job for {today_str}...")
+
+    # Step 1: Fetch all students
+    students_ref = db.collection('students').stream()
+    all_students = {s.to_dict()['regd_no']: s.to_dict() for s in students_ref}
+    print(f"✅ Total students found: {len(all_students)}")
+
+    # Step 2: Fetch today's attendance records
+    attendance_ref = db.collection('attendance_records').where('date', '==', today_str).stream()
+    present_regd = {r.to_dict()['regd_no'] for r in attendance_ref}
+
+    # Step 3: Mark absentees
+    absentees = [s for s in all_students.values() if s['regd_no'] not in present_regd]
+    print(f"⚠️ Students absent today: {len(absentees)}")
+
+    for student in absentees:
+        db.collection('attendance_records').add({
+            'name': student['name'],
+            'regd_no': student['regd_no'],
+            'date': today_str,
+            'time': END_TIME,
+            'status': 'Absent',
+            'timestamp': datetime.now(),
+        })
+
+    print("✅ Absentee marking completed.")
