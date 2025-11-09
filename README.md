@@ -1,30 +1,26 @@
 # ⚙️ AI-Driven Real-Time Attendance Monitoring System  
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
+![Python](https://img.shields.io/badge/Python-3.10.0-blue?logo=python)
 ![Django](https://img.shields.io/badge/Framework-Django-green?logo=django)
 ![Firebase](https://img.shields.io/badge/Cloud-Firebase-orange?logo=firebase)
 ![IoT](https://img.shields.io/badge/IoT-ESP32--CAM-lightgrey)
-![License](https://img.shields.io/badge/License-Proprietary-red)
 ![Status](https://img.shields.io/badge/Status-Research%20Prototype-yellow)
 
 > **An intelligent, automated attendance solution integrating AI, IoT, and cloud technologies for real-time monitoring and accurate attendance tracking.**  
 
 ---
 
-## Abstract  
+## 🎯 Objectives  
 
-Manual attendance systems are often error-prone, time-consuming, and prone to proxy entries.  
-This project presents an **AI-driven attendance monitoring system** that automates attendance using **facial recognition** and **IoT-based live image capture**.  
-
-An **ESP32-CAM** captures live facial images which are processed using a **Python-based face recognition engine**.  
-Attendance data is stored securely on **Google Firebase**, and a **Django-powered web interface** displays the results in real-time for organizational administrators.  
-
-Optimizations like **face encoding caching**, **event-driven camera activation**, and **image normalization** improved performance and recognition speed (≈0.1–1s per face).  
-
+- Automate attendance using **AI-based facial recognition** integrated with **IoT (ESP32-CAM)**.  
+- **Eliminate manual entry** and prevent **proxy or duplicate attendance**.  
+- Enable **real-time attendance monitoring** through cloud-based synchronization.  
+- Store attendance securely and efficiently using **Google Firebase**.  
+- Provide a **user-friendly Django web interface** for administrators.  
 ---
 
 ## System Architecture  
-![System Architecture](.Static/Architecture.jpeg)
+![System Architecture](./Static/Architecture.jpeg)
 
 ---
 
@@ -32,12 +28,12 @@ Optimizations like **face encoding caching**, **event-driven camera activation**
 
 | Category | Tools / Frameworks |
 |-----------|--------------------|
-| **IoT Device** | ESP32-CAM |
-| **AI / ML Library** | `face_recognition` (Python) |
+| **IoT Device** | ESP32-CAM + FTDI Programmer  |
+| **AI / ML Library** | `face_recognition` (dlib CNN ResNet-Based) |
 | **Backend Framework** | Django |
 | **Database / Cloud** | Firebase Firestore |
 | **Languages** | Python, HTML, CSS |
-| **Architecture Pattern** | MVC (Model-View-Controller) |
+| **Architecture Pattern** | MVT (Model-View-Template) |
 
 ---
 
@@ -52,51 +48,12 @@ Optimizations like **face encoding caching**, **event-driven camera activation**
 
 ---
 
-##  Challenges & Solutions  
-
-### Hardware Challenges  
-
-- **WiFi Instability (Serial Data Loss):**  
-  Resolved by periodic ESP32 resets to reinitialize and re-establish clean connections.  
-
-- **Overheating Issue:**  
-  Implemented trigger-based activation to prevent continuous camera operation.  
-
-### Software Challenges  
-
-- **Lighting Variations:**  
-  Solved with image preprocessing (brightness/contrast normalization).  
-
-- **Recomputation Overhead:**  
-  Cached face encodings to minimize redundant processing and speed up recognition.  
-
----
-
 ## 🚀 Results & Impact  
 
 - ⚡ **Recognition Speed:** 0.1 – 1 second per face  
 - ✅ **Accuracy:** Consistent results under varying lighting conditions  
 - 🖥️ **Real-Time Sync:** Dashboard updates instantly through Firebase  
 - 🧱 **Maintainability:** Clean MVC structure and Django ORM for efficient data handling  
-
----
-
-## Future Enhancements  
-
-- 🧍‍♂️ **Gait-Based Validation:** Additional behavior-based layer for higher accuracy.  
-- 🎨 **Enhanced UI/UX:** Interactive and analytics-driven dashboard.  
-- ⚙️ **Offline Mode:** Cache-based local attendance storage for poor network environments.  
-
-
----
-
-## 🧰 Tools Used  
-
-- Visual Studio Code  
-- Arduino IDE  
-- Python 3.10.0
-- Firebase Console  
-- Django Framework  
 
 ---
 
