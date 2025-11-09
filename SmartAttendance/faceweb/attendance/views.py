@@ -23,7 +23,7 @@ def admin_login(request):
     """
     Simple admin login page with session-based authentication.
     """
-    error_message = None  # for inline display instead of Django messages
+    error_message = None  
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -33,7 +33,7 @@ def admin_login(request):
             request.session['admin_logged_in'] = True
             return redirect('homepage')  # redirect to dashboard
         else:
-            error_message = "❌ Invalid credentials. Please try again."
+            error_message = "Invalid credentials. Please try again."
 
     return render(request, "admin_login.html", {'error_message': error_message})
 
@@ -151,8 +151,6 @@ def edit_student(request, regd_no):
                 'regd_no': form.cleaned_data['regd_no'],
                 'department': form.cleaned_data['department'],
             }
-
-            # If a new image is uploaded, replace it
             if 'image' in request.FILES:
                 image = request.FILES['image']
                 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
@@ -168,7 +166,7 @@ def edit_student(request, regd_no):
 
             # Update Firestore record
             student_ref.update(updated_data)
-            messages.success(request, "✅ Student record updated successfully.")
+            messages.success(request, "Student record updated successfully.")
             return redirect('view_students')
     else:
         form = FaceForm(initial={
@@ -186,7 +184,6 @@ def view_attendance(request):
     selected_date = request.GET.get('date')
     selected_name = request.GET.get('name')
 
-    # Default to today’s date if none selected
     today = datetime.now().strftime("%Y-%m-%d")
     target_date = selected_date or today
 
@@ -204,12 +201,10 @@ def view_attendance(request):
     if selected_name:
         attendance_data = [r for r in attendance_data if selected_name.lower() in r.get('name', '').lower()]
 
-    # --- Build attendance status map ---
     present_students = {r['name']: r for r in attendance_data if r.get('status', 'Present') == 'Present'}
     all_names = {s['name'] for s in student_data}
     absent_students = all_names - set(present_students.keys())
 
-    # --- Combine into a unified student list ---
     students = []
 
     # Present students
@@ -234,14 +229,12 @@ def view_attendance(request):
     todays_present = len(present_students)
     todays_absent = len(absent_students)
 
-    # Monthly analytics (approximate for now)
     month_str = datetime.now().strftime("%Y-%m")
     monthly_records = db.collection('attendance_records').where('date', '>=', f"{month_str}-01").stream()
     monthly_records = [r.to_dict() for r in monthly_records]
     monthly_present = len({f"{r['name']}-{r['date']}" for r in monthly_records if r.get('status', 'Present') == 'Present'})
     monthly_percentage = round((monthly_present / (total_students * 30)) * 100, 2) if total_students else 0
 
-    # --- Context ---
     context = {
         'students': students,
         'selected_date': target_date,
@@ -259,9 +252,9 @@ def delete_student(request, regd_no):
     """Delete a student record."""
     try:
         db.collection('students').document(regd_no).delete()
-        messages.success(request, "🗑️ Student deleted successfully.")
+        messages.success(request, "Student deleted successfully.")
     except Exception as e:
-        messages.error(request, f"❌ Failed to delete student: {e}")
+        messages.error(request, f"Failed to delete student: {e}")
     return redirect('view_students')
 
 # Attendance window
@@ -275,12 +268,12 @@ def mark_absentees():
     now = datetime.now()
     today_str = now.strftime("%Y-%m-%d")
 
-    print(f"📅 Running absentee marking job for {today_str}...")
+    print(f"Running absentee marking job for {today_str}...")
 
     # Step 1: Fetch all students
     students_ref = db.collection('students').stream()
     all_students = {s.to_dict()['regd_no']: s.to_dict() for s in students_ref}
-    print(f"✅ Total students found: {len(all_students)}")
+    print(f"Total students found: {len(all_students)}")
 
     # Step 2: Fetch today's attendance records
     attendance_ref = db.collection('attendance_records').where('date', '==', today_str).stream()
@@ -288,7 +281,7 @@ def mark_absentees():
 
     # Step 3: Mark absentees
     absentees = [s for s in all_students.values() if s['regd_no'] not in present_regd]
-    print(f"⚠️ Students absent today: {len(absentees)}")
+    print(f"Students absent today: {len(absentees)}")
 
     for student in absentees:
         db.collection('attendance_records').add({
@@ -300,4 +293,4 @@ def mark_absentees():
             'timestamp': datetime.now(),
         })
 
-    print("✅ Absentee marking completed.")
+    print("Absentee marking completed.")
