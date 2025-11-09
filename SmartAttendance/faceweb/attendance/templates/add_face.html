@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Face Data</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 min-h-screen flex items-center justify-center text-white font-sans">
+
+  <div class="bg-white text-black rounded-xl shadow-lg p-10 w-full max-w-md">
+    <h2 class="text-3xl font-bold text-center mb-6">Add New Face Data</h2>
+    
+    <!-- ✅ Message box (success or error) -->
+    {% if message %}
+      <div class="mb-4 p-3 rounded-md text-center 
+        {% if '✅' in message %}
+          bg-green-100 text-green-700 border border-green-400
+        {% else %}
+          bg-red-100 text-red-700 border border-red-400
+        {% endif %}">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg shadow transition duration-300">
+        Upload
+      </button>
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <footer class="fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
+    &copy; 2025 Sirisha. All Rights Reserved.
+  </footer>
+
+</body>
+</html>

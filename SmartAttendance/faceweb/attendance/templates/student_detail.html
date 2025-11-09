@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Attendance Details - {{ name }}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 min-h-screen text-white font-sans">
+
+  <!-- Header -->
+  <header class="text-center py-10">
+    <h2 class="text-4xl font-bold mb-2">Attendance History</h2>
+    <p class="text-xl mb-4">Student: <span class="font-semibold">{{ name }}</span></p>
+    <a href="{% url 'view_attendance' %}" class="text-sm underline hover:text-gray-200">← Back to list</a>
+  </header>
+
+  <!-- Attendance List -->
+  <div class="max-w-3xl mx-auto bg-white text-black rounded-lg shadow-lg p-6">
+    {% if history %}
+      <ul class="space-y-3">
+        {% for record in history %}
+          <li class="border-b py-2 flex justify-between">
+            <span class="font-medium">Timestamp:</span>
+            <span>{{ record.timestamp }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-center text-gray-700">No attendance records found for {{ name }}.</p>
+    {% endif %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
+    &copy; 2025 Sirisha. All Rights Reserved.
+  </footer>
+
+</body>
+</html>

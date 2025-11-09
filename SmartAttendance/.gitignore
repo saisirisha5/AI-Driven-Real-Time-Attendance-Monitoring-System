@@ -1,0 +1,49 @@
+# =====================================
+# 🧠 DJANGO WEB APP IGNORE
+# =====================================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*$py.class
+
+# Django core
+*.log
+*.pot
+*.pyc
+*.sqlite3
+db.sqlite3
+local_settings.py
+media/
+staticfiles/
+
+# Django migrations
+*/migrations/__pycache__/
+*/migrations/*.py[cod]
+*/migrations/*.log
+*/migrations/*.sqlite3
+
+# Virtual environments
+venv/
+ENV/
+env/
+*.env
+.env
+.env.*
+
+# Firebase credentials / secrets
+firebase-adminsdk*.json
+*.firebase.json
+*.json
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Recognition Attendance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .banner-button {
+      background-color: #ffffff;
+      color: #000000;
+      padding: 20px 50px;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 10px;
+      border-radius: 30px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+
+    .banner-button:hover {
+      background-color: #ff5722;
+      color: #ffffff;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 text-white font-sans">
+
+  <!-- Header Section -->
+  <header class="text-center py-10">
+    <h1 class="text-5xl font-bold mb-6">Face Recognition Attendance</h1>
+    <p class="text-lg mb-6">Automated attendance tracking using face recognition technology</p>
+  </header>
+
+  <!-- Image Section -->
+  <div class="flex justify-center mb-10">
+    <img src="{% static 'Att.jpg' %}" alt="Banner" class="w-full max-w-xl rounded-lg shadow-lg">
+  </div>
+
+  <!-- Buttons Section -->
+  <main class="text-center mb-10">
+    <a href="/view_attendance" class="banner-button inline-block">
+      View Attendance
+    </a>
+    <a href="/add_face" class="banner-button inline-block">
+      Add Face Data
+    </a>
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="footer">
+    <p class="text-sm">&copy; 2025 Sirisha. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>

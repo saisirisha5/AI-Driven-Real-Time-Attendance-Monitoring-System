@@ -1,0 +1,13 @@
+Copyright (c) 2025 Sai Sirisha Devi
+
+All rights reserved.
+
+This project is published solely for educational and demonstrative purposes.
+
+You are not permitted to copy, modify, distribute, sublicense, or reuse any part of this code without explicit written permission from the author.
+
+Unauthorized use of this code, in whole or in part, for any purpose is strictly prohibited.
+
+Please do not fork, clone, or replicate this repository in any form.
+
+For questions or requests, contact: prabhalasaisirisha25@gmail.com

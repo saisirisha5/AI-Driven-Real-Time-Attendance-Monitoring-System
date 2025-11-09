@@ -1,0 +1,29 @@
+# =====================================
+# 🧩 ESP32 / FIRMWARE IGNORE
+# =====================================
+
+# Build output
+build/
+*.elf
+*.bin
+*.hex
+*.map
+*.log
+
+# Temporary or debug files
+*.tmp
+*.bak
+
+# Source-specific ignores
+handlers.cpp
+WifiCam.hpp
+
+# IDE / PlatformIO
+.vscode/
+.idea/
+.pio/
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini

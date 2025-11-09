@@ -1,0 +1,48 @@
+# =====================================
+# 🧠 PYTHON AI MODULE IGNORE
+# =====================================
+
+# Bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+venv310/
+env/
+ENV/
+
+# Firebase credentials (keep private)
+firebase-adminsdk*.json
+*.firebase.json
+*.json
+
+# Local attendance data
+Attendance/
+*.csv
+*.xlsx
+
+# Temporary / generated files
+*.log
+*.bak
+*.tmp
+*.swp
+*~
+
+# Image / video data
+*.jpg
+*.jpeg
+*.png
+*.mp4
+
+# IDE / editor files
+.vscode/
+.idea/
+*.code-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini

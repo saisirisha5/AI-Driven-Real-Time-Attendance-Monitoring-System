@@ -1,0 +1,18 @@
+# Root repo ignore
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.code-workspace
+
+# Ignore virtual envs across modules
+PyCode/venv310/
+SmartAttendance/venv/
+WifiCam/build/
+
+# Firebase Admin SDK key (parent-level)
+esp32-attendance-system-2025-firebase-adminsdk-fbsvc-7d9ed7b2b0.json
+*.json
+
+# Ignore all Firebase credential files
+*firebase-adminsdk*.json
