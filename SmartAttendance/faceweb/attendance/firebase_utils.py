@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import PIL.Image
-from .firebase_config import db  # ✅ reuse existing firebase instance
+from .firebase_config import db 
 
 def add_student_to_firebase(name, regd_no, department, image_file):
     """
@@ -18,7 +18,7 @@ def add_student_to_firebase(name, regd_no, department, image_file):
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         if img is None:
-            return False, "❌ Could not read uploaded image."
+            return False, "Could not read uploaded image."
 
         # Ensure RGB image
         if img.dtype != 'uint8':
@@ -36,7 +36,7 @@ def add_student_to_firebase(name, regd_no, department, image_file):
         # Generate face encoding
         encodings = face_recognition.face_encodings(rgb_img)
         if len(encodings) == 0:
-            return False, "❌ No face detected. Please upload a clearer image."
+            return False, "No face detected. Please upload a clearer image."
 
         face_encoding = encodings[0].tolist()
 
@@ -56,10 +56,10 @@ def add_student_to_firebase(name, regd_no, department, image_file):
         # Upload to Firestore
         doc_ref = db.collection('students').document(regd_no)
         if doc_ref.get().exists:
-            return False, f"⚠️ Student {regd_no} already exists in Firebase."
+            return False, f"Student {regd_no} already exists in Firebase."
 
         doc_ref.set(student_data)
-        return True, f"✅ Successfully added {name} ({regd_no}) to Firebase."
+        return True, f"Successfully added {name} ({regd_no}) to Firebase."
 
     except Exception as e:
-        return False, f"❌ Error: {e}"
+        return False, f"Error: {e}"

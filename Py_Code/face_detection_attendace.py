@@ -17,7 +17,7 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../.env'))
 
 firebase_cred_path = os.getenv("FIREBASE_CREDENTIAL_PATH")
 if not firebase_cred_path or not os.path.exists(firebase_cred_path):
-    raise FileNotFoundError(f"❌ Firebase credential file not found: {firebase_cred_path}")
+    raise FileNotFoundError(f"Firebase credential file not found: {firebase_cred_path}")
 
 # -------------------------------------------------------------------
 # 🔹 Firebase Initialization
@@ -53,12 +53,12 @@ for doc in students:
             known_names.append(data['name'])
             known_regd.append(data['regd_no'])
         except Exception as e:
-            print(f"⚠️ Skipping {data.get('name', 'Unknown')} - encoding issue: {e}")
+            print(f"Skipping {data.get('name', 'Unknown')} - encoding issue: {e}")
 
-print(f"✅ Loaded {len(known_names)} encodings from Firebase")
+print(f"Loaded {len(known_names)} encodings from Firebase")
 
 if len(known_encodings) == 0:
-    print("⚠️ No encodings found! Please add students first.")
+    print("No encodings found! Please add students first.")
     exit()
 
 # -------------------------------------------------------------------
@@ -80,7 +80,7 @@ def markAttendance(name, regd_no):
 
     existing = list(query)
     if existing:
-        print(f"⚠️ Attendance already marked for {name} ({regd_no}) today.")
+        print(f"Attendance already marked for {name} ({regd_no}) today.")
         return
 
     attendance_ref.add({
@@ -91,7 +91,7 @@ def markAttendance(name, regd_no):
         "timestamp": now
     })
 
-    print(f"✅ Attendance uploaded for {name} ({regd_no}) at {time}")
+    print(f"Attendance uploaded for {name} ({regd_no}) at {time}")
 
 # -------------------------------------------------------------------
 # 🔹 Image Source Setup
@@ -104,7 +104,7 @@ else:
         "TEST_IMAGE_PATH",
         r"C:\Users\prabh\OneDrive\Desktop\Projects\Term Paper Project\Py_Code\test_face.jpg"
     )
-    print(f"🖼️ Running in Static Image Mode: {test_img_path}")
+    print(f"Running in Static Image Mode: {test_img_path}")
 
 # -------------------------------------------------------------------
 # 🔹 Recognition Logic
@@ -112,7 +112,7 @@ else:
 if MODE == "static":
     img = cv2.imread(test_img_path)
     if img is None:
-        print("❌ Could not read test image. Check path.")
+        print("Could not read test image. Check path.")
         exit()
 
     imgS = cv2.resize(img, (0, 0), None, 0.25, 0.25)
@@ -122,7 +122,7 @@ if MODE == "static":
     encodesCurFrame = face_recognition.face_encodings(imgS, facesCurFrame)
 
     if len(facesCurFrame) == 0:
-        print("⚠️ No faces detected.")
+        print("No faces detected.")
     else:
         for encodeFace, faceLoc in zip(encodesCurFrame, facesCurFrame):
             matches = face_recognition.compare_faces(known_encodings, encodeFace)
@@ -133,11 +133,11 @@ if MODE == "static":
                 name = known_names[matchIndex]
                 regd_no = known_regd[matchIndex]
                 markAttendance(name, regd_no)
-                print(f"✅ Recognized {name} ({regd_no})")
+                print(f"Recognized {name} ({regd_no})")
             else:
-                print("❌ Face not recognized.")
+                print("Face not recognized.")
 
-    print("🎯 Static Image Test Completed.")
+    print("Static Image Test Completed.")
 
 else:
     # ESP32 Live Stream
@@ -175,8 +175,8 @@ else:
                 break
 
         except Exception as e:
-            print(f"⚠️ Error: {e}")
+            print(f"Error: {e}")
             continue
 
     cv2.destroyAllWindows()
-    print("🛑 ESP32 Mode Ended.")
+    print("ESP32 Mode Ended.")
