@@ -1,26 +1,40 @@
+import os
 import cv2
 import urllib.request
 import numpy as np
 from datetime import datetime
 import face_recognition
-import firebase_admin 
+import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
+from dotenv import load_dotenv
+
+# -------------------------------------------------------------------
+# 🔹 Load environment variables
+# -------------------------------------------------------------------
+# Load .env from the project root (one level up from Py_Code)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../.env'))
+
+firebase_cred_path = os.getenv("FIREBASE_CREDENTIAL_PATH")
+if not firebase_cred_path or not os.path.exists(firebase_cred_path):
+    raise FileNotFoundError(f"❌ Firebase credential file not found: {firebase_cred_path}")
+
+# -------------------------------------------------------------------
+# 🔹 Firebase Initialization
+# -------------------------------------------------------------------
+try:
+    firebase_admin.get_app()
+except ValueError:
+    cred = credentials.Certificate(firebase_cred_path)
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 # -------------------------------------------------------------------
 # 🔹 Mode Selection
 # -------------------------------------------------------------------
 # Choose between: "static" or "esp32"
-MODE = "static"   # 🔁 change to "esp32" when using your ESP32-CAM
-
-# -------------------------------------------------------------------
-# 🔹 Firebase Initialization
-# -------------------------------------------------------------------
-cred = credentials.Certificate(
-    r"C:\Users\prabh\OneDrive\Desktop\Projects\Term Paper Project\esp32-attendance-system-2025-firebase-adminsdk-fbsvc-7d9ed7b2b0.json"
-)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+MODE = os.getenv("RUN_MODE", "static")  # default to static if not set
 
 # -------------------------------------------------------------------
 # 🔹 Fetch Known Encodings from Firebase
@@ -39,7 +53,7 @@ for doc in students:
             known_names.append(data['name'])
             known_regd.append(data['regd_no'])
         except Exception as e:
-            print(f"Skipping {data.get('name', 'Unknown')} - encoding issue: {e}")
+            print(f"⚠️ Skipping {data.get('name', 'Unknown')} - encoding issue: {e}")
 
 print(f"✅ Loaded {len(known_names)} encodings from Firebase")
 
@@ -50,7 +64,6 @@ if len(known_encodings) == 0:
 # -------------------------------------------------------------------
 # 🔹 Attendance Marking Function
 # -------------------------------------------------------------------
-
 def markAttendance(name, regd_no):
     now = datetime.now()
     date = now.strftime("%Y-%m-%d")
@@ -84,16 +97,17 @@ def markAttendance(name, regd_no):
 # 🔹 Image Source Setup
 # -------------------------------------------------------------------
 if MODE == "esp32":
-    # ESP32-CAM Stream URL
-    url = 'http://192.168.1.43/cam-hi.jpg'
+    url = os.getenv("ESP32_URL", "http://192.168.1.43/cam-hi.jpg")
     print("📷 Running in ESP32-CAM Mode (Press 'q' to quit)")
 else:
-    # Static image for testing
-    test_img_path = r"C:\Users\prabh\OneDrive\Desktop\Projects\Term Paper Project\Py_Code\test_face.jpg"
+    test_img_path = os.getenv(
+        "TEST_IMAGE_PATH",
+        r"C:\Users\prabh\OneDrive\Desktop\Projects\Term Paper Project\Py_Code\test_face.jpg"
+    )
     print(f"🖼️ Running in Static Image Mode: {test_img_path}")
 
 # -------------------------------------------------------------------
-# 🔹 Recognition Loop
+# 🔹 Recognition Logic
 # -------------------------------------------------------------------
 if MODE == "static":
     img = cv2.imread(test_img_path)
@@ -126,7 +140,7 @@ if MODE == "static":
     print("🎯 Static Image Test Completed.")
 
 else:
-    # ESP32-CAM Live Mode
+    # ESP32 Live Stream
     while True:
         try:
             img_resp = urllib.request.urlopen(url)

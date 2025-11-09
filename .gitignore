@@ -16,3 +16,5 @@ esp32-attendance-system-2025-firebase-adminsdk-fbsvc-7d9ed7b2b0.json
 
 # Ignore all Firebase credential files
 *firebase-adminsdk*.json
+
+.env
