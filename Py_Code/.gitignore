@@ -46,3 +46,8 @@ Attendance/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+#add_student
+add_student.py
+#wheel 
+Py_Code/dlib-19.24.1-cp310-cp310-win_amd64.whl
