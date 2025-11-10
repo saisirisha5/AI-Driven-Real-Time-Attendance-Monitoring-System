@@ -4,65 +4,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face Recognition Attendance</title>
+  <title>AI-Driven Attendance System</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
+    /* Button styling */
     .banner-button {
-      background-color: #ffffff;
-      color: #000000;
-      padding: 15px 40px;
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin: 10px;
+      background-color: #7B61FF; /* Purple accent */
+      color: #ffffff;
+      padding: 14px 36px;
       border-radius: 30px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 1.5px;
       transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 4px 12px rgba(123, 97, 255, 0.3);
     }
 
     .banner-button:hover {
-      background-color: #ff5722;
-      color: #ffffff;
-      transform: scale(1.05);
+      background-color: #6a4fe5;
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 18px rgba(123, 97, 255, 0.5);
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-out forwards;
     }
 
     .footer {
       position: fixed;
-      bottom: 0;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
-      text-align: center;
-      margin-bottom: 10px;
+      color: #555;
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 text-white font-sans">
+<body class="bg-white text-gray-800 font-sans overflow-x-hidden">
 
-  <!-- Header Section -->
-  <header class="text-center py-16">
-    <h1 class="text-5xl font-bold mb-6">Face Recognition Attendance</h1>
-    <p class="text-lg mb-10">Automated attendance tracking using AI-driven face recognition technology</p>
+  <!-- 🌟 Navbar -->
+  <nav class="flex justify-between items-center py-4 px-8 shadow-sm bg-white fixed w-full top-0 z-50">
+    <h1 class="text-2xl font-bold text-purple-700">AIvora</h1>
+    <a href="{% url 'admin_login' %}" class="text-purple-700 font-medium hover:text-purple-900 transition">
+      Admin Login
+    </a>
+  </nav>
 
-    <!-- Action Buttons -->
-    <div>
-      <a href="{% url 'admin_login' %}" class="banner-button inline-block">
-        Admin Login
-      </a>
+  <!-- 🧠 Hero Section -->
+  <section class="flex flex-col items-center justify-center text-center min-h-screen bg-gradient-to-r from-purple-100 via-white to-purple-50 px-4 pt-20">
+    <div class="fade-in">
+      <h1 class="text-5xl md:text-6xl font-extrabold text-purple-700 mb-6">
+        AI-Driven Real-Time Attendance Monitoring System
+      </h1>
+      <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+        Seamlessly automate student attendance using real-time facial recognition technology powered by AI.
+      </p>
 
-      <!-- Optional: Direct View Attendance button (if already logged in)
-      {% if request.session.admin_logged_in %}
-      <a href="{% url 'view_attendance' %}" class="banner-button inline-block">
-        View Attendance
-      </a>
-      {% endif %} -->
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="{% url 'admin_login' %}" class="banner-button">
+          Admin Login
+        </a>
+
+        {% if request.session.admin_logged_in %}
+        <a href="{% url 'homepage' %}" class="banner-button bg-gray-800 hover:bg-gray-900">
+          Go to Dashboard
+        </a>
+        {% endif %}
+      </div>
     </div>
-  </header>
+  </section>
 
-  <!-- Footer Section -->
-  <footer class="footer">
-    <p class="text-sm">&copy; 2025 Sirisha. All Rights Reserved.</p>
+  <!-- 💡 Features Section -->
+  <section class="py-20 bg-white text-gray-700">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <h2 class="text-3xl font-bold text-purple-700 mb-12">Why Choose AI Attendance?</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-6 bg-purple-50 rounded-xl shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold text-purple-700 mb-3">🚀 Automated Tracking</h3>
+          <p>Say goodbye to manual roll calls — attendance is marked automatically with face recognition.</p>
+        </div>
+        <div class="p-6 bg-purple-50 rounded-xl shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold text-purple-700 mb-3">🧠 AI-Powered Accuracy</h3>
+          <p>Leverages deep learning models to detect and recognize faces in real-time with high accuracy.</p>
+        </div>
+        <div class="p-6 bg-purple-50 rounded-xl shadow hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold text-purple-700 mb-3">📊 Smart Reports</h3>
+          <p>Admins can view attendance summaries, trends, and export insights effortlessly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🦶 Footer -->
+  <footer class="footer text-center text-sm">
+    &copy; 2025 Sai Sirisha Devi Prabhala. All Rights Reserved.
   </footer>
 
 </body>

@@ -1,100 +1,71 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Attendance Records</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+{% extends 'base.html' %}
+{% block title %}Attendance Records{% endblock %}
+{% block header %}Attendance Records{% endblock %}
 
-<body class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-sans min-h-screen">
-
-  <!-- Header -->
-  <header class="text-center py-8">
-    <h1 class="text-4xl font-bold mb-4">Attendance Records</h1>
-    <p class="text-lg mb-6">Filter and analyze attendance data efficiently</p>
-    <a href="{% url 'homepage' %}" 
-       class="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-orange-500 hover:text-white transition">
-      ⬅ Back to Dashboard
-    </a>
-  </header>
-
-  <!-- Filters -->
-  <section class="bg-white text-black rounded-xl shadow-lg mx-auto p-6 w-11/12 max-w-3xl mb-10">
-    <form method="get" class="flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="flex flex-col">
-        <label class="font-semibold text-gray-700 mb-1">Filter by Date:</label>
-        <input type="date" name="date" value="{{ selected_date }}" 
-               class="border border-gray-300 rounded-md p-2 focus:ring focus:ring-purple-300 outline-none">
-      </div>
-
-      <div class="flex flex-col">
-        <label class="font-semibold text-gray-700 mb-1">Filter by Name:</label>
-        <input type="text" name="name" placeholder="Search by name" value="{{ selected_name }}" 
-               class="border border-gray-300 rounded-md p-2 focus:ring focus:ring-purple-300 outline-none">
-      </div>
-
-      <div class="flex items-end">
-        <button type="submit" 
-                class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300">
-          Apply
-        </button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Analytics -->
-  <section class="grid grid-cols-1 sm:grid-cols-3 gap-6 mx-auto w-11/12 max-w-5xl text-center mb-10">
-    <div class="bg-white text-black rounded-xl shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-purple-700">Total Students</h3>
-      <p class="text-3xl font-bold mt-2">{{ total_students }}</p>
+{% block content %}
+<!-- Filters -->
+<div class="bg-card text-main rounded-xl shadow p-6 mb-8 border border-main">
+  <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <label class="font-semibold text-main mb-1 block">Date</label>
+      <input type="date" name="date" value="{{ selected_date }}"
+        class="w-full border border-main rounded-md p-2 bg-input focus:ring focus:ring-purple-300 outline-none">
     </div>
 
-    <div class="bg-white text-black rounded-xl shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-green-700">Present Today</h3>
-      <p class="text-3xl font-bold mt-2">{{ todays_present }}</p>
-      <p class="text-sm text-gray-600 mt-1">Absent: {{ todays_absent }}</p>
+    <div>
+      <label class="font-semibold text-main mb-1 block">Student Name</label>
+      <input type="text" name="name" placeholder="Search by name" value="{{ selected_name }}"
+        class="w-full border border-main rounded-md p-2 bg-input focus:ring focus:ring-purple-300 outline-none">
     </div>
 
-    <div class="bg-white text-black rounded-xl shadow-lg p-6">
-      <h3 class="text-xl font-semibold text-pink-700">Monthly Attendance</h3>
-      <p class="text-3xl font-bold mt-2">{{ monthly_percentage }}%</p>
-      <p class="text-sm text-gray-600 mt-1">Last 30 days</p>
+    <div class="flex items-end">
+      <button type="submit" class="bg-primary hover:bg-primary text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300 w-full">
+        Apply
+      </button>
     </div>
-  </section>
+  </form>
+</div>
 
-  <!-- Attendance Grid -->
-  <main class="px-8 pb-20">
-    {% if students %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for student in students %}
-          <a href="{% url 'student_detail' student.name %}" class="block">
-            <div class="bg-white text-black rounded-xl shadow-lg p-6 flex flex-col items-center hover:scale-105 transform transition duration-200">
-              {% if student.image_base64 %}
-                <img src="data:image/jpeg;base64,{{ student.image_base64 }}" 
-                     alt="{{ student.name }}" 
-                     class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-teal-500 shadow-md">
-              {% else %}
-                <div class="w-24 h-24 rounded-full bg-gray-300 mb-4 flex items-center justify-center text-gray-600">
-                  No Image
-                </div>
-              {% endif %}
-              <h2 class="text-xl font-bold">{{ student.name }}</h2>
-              <p class="text-sm text-gray-700 mt-1">Last Seen:</p>
-              <p class="text-sm font-medium text-gray-800">{{ student.last_timestamp }}</p>
-            </div>
-          </a>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-center text-lg mt-10 text-white">No attendance records found.</p>
-    {% endif %}
-  </main>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+  <div class="bg-card rounded-xl shadow p-6 text-center border border-main">
+    <h3 class="text-lg font-semibold text-primary">Total Students</h3>
+    <p class="text-3xl font-bold mt-2 text-main">{{ total_students }}</p>
+  </div>
 
-  <!-- Footer -->
-  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
-    &copy; 2025 Sirisha. All Rights Reserved.
-  </footer>
+  <div class="bg-card rounded-xl shadow p-6 text-center border border-main">
+    <h3 class="text-lg font-semibold text-green-600">Present Today</h3>
+    <p class="text-3xl font-bold mt-2 text-main">{{ todays_present }}</p>
+    <p class="text-sm text-main">Absent: {{ todays_absent }}</p>
+  </div>
 
-</body>
-</html>
+  <div class="bg-card rounded-xl shadow p-6 text-center border border-main">
+    <h3 class="text-lg font-semibold text-pink-600">Monthly Attendance</h3>
+    <p class="text-3xl font-bold mt-2 text-main">{{ monthly_percentage }}%</p>
+    <p class="text-sm text-main">Last 30 days</p>
+  </div>
+</div>
+
+<!-- Attendance Cards -->
+{% if students %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for student in students %}
+      <a href="{% url 'student_detail' student.name %}" class="block">
+        <div class="bg-card text-main rounded-xl shadow p-6 flex flex-col items-center border border-main hover:scale-105 transition duration-200">
+          {% if student.image_base64 %}
+            <img src="data:image/jpeg;base64,{{ student.image_base64 }}" alt="{{ student.name }}"
+              class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-purple-500 shadow-md">
+          {% else %}
+            <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 mb-4">No Image</div>
+          {% endif %}
+          <h2 class="text-lg font-semibold text-primary">{{ student.name }}</h2>
+          <p class="text-sm text-main">Last Seen:</p>
+          <p class="text-sm font-medium text-main">{{ student.last_timestamp }}</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-center text-main mt-8">No attendance records found.</p>
+{% endif %}
+{% endblock %}

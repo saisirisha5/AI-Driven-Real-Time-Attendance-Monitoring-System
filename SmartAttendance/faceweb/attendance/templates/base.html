@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}AIvora Dashboard{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    
+    :root {
+      /* White + Rich Purple Theme */
+      --primary-color: #6D28D9;      /* Richer violet */
+      --primary-hover: #5B21B6;      /* Smooth dark purple */
+      --background-color: #F3F4F6;   /* Soft neutral white */
+      --text-color: #1F2937;
+      --card-bg: #FAFAFA;
+      --border-color: #E0E0E0;
+      --input-bg: #FFFFFF;
+    }
+
+
+    /* Global Theme Bindings */
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+
+    .bg-card { background-color: var(--card-bg); }
+    .text-main { color: var(--text-color); }
+    .border-main { border-color: var(--border-color); }
+    .bg-input { background-color: var(--input-bg); }
+
+    .bg-primary { background-color: var(--primary-color); color: white; }
+    .hover\:bg-primary:hover { background-color: var(--primary-hover); }
+
+    /* Sidebar Gradient + Hover Styling */
+    .sidebar-gradient {
+     background: linear-gradient(180deg, #5B21B6 0%, #7C3AED 40%, #3B82F6 100%);
+     color: white;
+      backdrop-filter: blur(8px);
+
+    }
+
+    .sidebar-link {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-link::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.15);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .sidebar-link:hover::after {
+      opacity: 1;
+    }
+
+    .sidebar-link:hover {
+      transform: translateX(4px);
+    }
+  </style>
+</head>
+
+<body class="font-sans">
+  <div class="flex h-screen overflow-hidden">
+
+<!-- 🟣 Sidebar with Gradient -->
+<aside class="w-64 sidebar-gradient flex flex-col justify-between">
+  <div>
+    <!-- Logo -->
+   <div class="text-center py-6 border-b border-purple-200/40">
+    <h1 class="text-2xl font-bold tracking-wide">AIvora</h1>
+    <p class="text-xs text-white/80 italic">Empowering Intelligent Recognition</p>
+  </div>
+
+    <!-- Navigation Links -->
+    <nav class="mt-6">
+      <ul class="space-y-2">
+        <li>
+          <a href="{% url 'homepage' %}"
+             class="sidebar-link block px-6 py-2 rounded-lg font-medium">🏠 Dashboard</a>
+        </li>
+        <li>
+          <a href="{% url 'view_students' %}"
+             class="sidebar-link block px-6 py-2 rounded-lg font-medium">👩‍🎓 Students</a>
+        </li>
+        <li>
+          <a href="{% url 'view_attendance' %}"
+             class="sidebar-link block px-6 py-2 rounded-lg font-medium">🕒 Attendance</a>
+        </li>
+        <li>
+          <a href="{% url 'add_face' %}"
+             class="sidebar-link block px-6 py-2 rounded-lg font-medium">💻 Add Face</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Footer -->
+  <footer class="text-center py-3 text-xs text-white/80 border-t border-purple-200/40">
+    &copy; 2025 Sai Sirisha Devi Prabhala</br> All rights reserved
+  </footer>
+</aside>
+
+
+    <!-- ⚪ Main Content -->
+    <main class="flex-1 flex flex-col">
+      
+      <!-- 🔝 Navbar -->
+      <header class="shadow px-6 py-4 flex justify-between items-center bg-card border-b border-main">
+        <h1 class="text-2xl font-semibold text-primary">
+          {% block header %}{% endblock %}
+        </h1>
+
+        <div class="flex items-center space-x-4">
+          <a href="{% url 'admin_logout' %}"
+             class="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-lg font-medium shadow transition">
+             🚪 Logout
+          </a>
+        </div>
+      </header>
+
+      <!-- 📄 Page Content -->
+      <section class="p-6 overflow-y-auto flex-1">
+        {% block content %}
+        {% endblock %}
+      </section>
+    </main>
+  </div>
+
+</body>
+</html>

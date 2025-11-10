@@ -1,61 +1,214 @@
-<!DOCTYPE html>
-{% load static %}
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .banner-button {
-      background-color: #ffffff;
-      color: #000000;
-      padding: 20px 50px;
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin: 10px;
-      border-radius: 30px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block header %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- ================== QUICK STATS ================== -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+  <div class="bg-card text-main p-6 rounded-xl shadow border border-main">
+    <h2 class="text-primary font-semibold">Total Students</h2>
+    <p class="text-3xl font-bold mt-2">{{ total_students|default:"320" }}</p>
+    <p class="text-sm text-gray-500 mt-1">Enrolled this semester</p>
+  </div>
+
+  <div class="bg-card text-main p-6 rounded-xl shadow border border-main">
+    <h2 class="text-primary font-semibold">Teachers</h2>
+    <p class="text-3xl font-bold mt-2">{{ total_teachers|default:"18" }}</p>
+    <p class="text-sm text-gray-500 mt-1">Across all departments</p>
+  </div>
+
+  <div class="bg-card text-main p-6 rounded-xl shadow border border-main">
+    <h2 class="text-primary font-semibold">Present Today</h2>
+    <p class="text-3xl font-bold mt-2 text-green-600">{{ todays_present|default:"298" }}</p>
+    <p class="text-sm text-gray-500 mt-1">Out of {{ total_students|default:"320" }}</p>
+  </div>
+
+  <div class="bg-card text-main p-6 rounded-xl shadow border border-main">
+    <h2 class="text-primary font-semibold">Absent Today</h2>
+    <p class="text-3xl font-bold mt-2 text-red-600">{{ todays_absent|default:"22" }}</p>
+    <p class="text-sm text-gray-500 mt-1">Recorded as of now</p>
+  </div>
+</div>
+
+<!-- ================== MAIN CHARTS ================== -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+  <div class="bg-card text-main rounded-xl shadow p-6 border border-main">
+    <h3 class="text-xl font-semibold text-primary mb-4">Monthly Attendance Overview</h3>
+    <canvas id="attendanceChart" height="120"></canvas>
+  </div>
+
+  <div class="bg-card text-main rounded-xl shadow p-6 border border-main">
+    <h3 class="text-xl font-semibold text-primary mb-4">Monthly Absentees Overview</h3>
+    <canvas id="absenteesChart" height="120"></canvas>
+  </div>
+</div>
+
+<!-- ================== EXTRA INSIGHTS ================== -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+
+  <!-- 🧠 Department Attendance -->
+  <div class="bg-card text-main rounded-xl shadow p-6 border border-main">
+    <h3 class="text-xl font-semibold text-primary mb-4">Department-wise Attendance</h3>
+    <canvas id="deptChart" height="200"></canvas>
+  </div>
+
+  <!-- 👩‍🎓 Top Performers -->
+  <div class="bg-card text-main rounded-xl shadow p-6 border border-main">
+    <h3 class="text-xl font-semibold text-primary mb-4">Top 5 Students (Attendance)</h3>
+    <ul class="divide-y divide-gray-200">
+      <li class="py-2 flex justify-between">
+        <span>Prabhala Sai Sirisha Devi</span><span class="text-green-600 font-semibold">99%</span>
+      </li>
+      <li class="py-2 flex justify-between">
+        <span>Prabhala Siva Sobhan</span><span class="text-green-600 font-semibold">98%</span>
+      </li>
+      <li class="py-2 flex justify-between">
+        <span>Aruna Chitta</span><span class="text-green-600 font-semibold">97%</span>
+      </li>
+      <li class="py-2 flex justify-between">
+        <span>Prabhala Rajasekhar</span><span class="text-green-600 font-semibold">96%</span>
+      </li>
+      <li class="py-2 flex justify-between">
+        <span>Gayatri Bhaskar</span><span class="text-green-600 font-semibold">95%</span>
+      </li>
+    </ul>
+  </div>
+
+<!-- ⚡ Live Attendance Summary -->
+<div class="bg-card text-main rounded-xl shadow p-4 border border-main">
+  <div class="flex justify-between items-center mb-3">
+    <h2 class="text-base font-semibold text-primary">Live Attendance Summary</h2>
+    <span id="lastUpdated" class="text-[11px] text-gray-500">Last updated: just now</span>
+  </div>
+
+  <div class="grid grid-cols-3 gap-3 text-center">
+    <div>
+      <p class="text-[11px] text-gray-500 leading-tight">Current<br>Attendance</p>
+      <h2 id="liveRate" class="text-xl font-bold text-green-600 mt-1">92%</h2>
+    </div>
+
+    <div>
+      <p class="text-[11px] text-gray-500 leading-tight">Peak<br>Check-In</p>
+      <h2 class="text-xl font-bold text-blue-600 mt-1">09:03<br>AM</h2>
+    </div>
+
+    <div>
+      <p class="text-[11px] text-gray-500 leading-tight">Recognition<br>Accuracy</p>
+      <h2 id="aiAccuracy" class="text-xl font-bold text-purple-600 mt-1">97.8%</h2>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ================== RECENT ATTENDANCE TABLE ================== -->
+<div class="bg-card text-main rounded-xl shadow p-6 border border-main">
+  <h3 class="text-xl font-semibold text-primary mb-4">Recent Attendance Activity</h3>
+  <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+    <thead class="bg-purple-100">
+      <tr>
+        <th class="text-left py-3 px-4 text-gray-700 font-semibold">Name</th>
+        <th class="text-left py-3 px-4 text-gray-700 font-semibold">Regd No</th>
+        <th class="text-left py-3 px-4 text-gray-700 font-semibold">Time In</th>
+        <th class="text-left py-3 px-4 text-gray-700 font-semibold">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b hover:bg-gray-50 transition">
+        <td class="py-2 px-4">Prabhala Sai Sirisha Devi</td>
+        <td class="py-2 px-4">2200030081</td>
+        <td class="py-2 px-4">09:02 AM</td>
+        <td class="py-2 px-4 text-green-600 font-semibold">Present</td>
+      </tr>
+      <tr class="border-b hover:bg-gray-50 transition">
+        <td class="py-2 px-4">Prabhala Siva Sobhan</td>
+        <td class="py-2 px-4">2200030095</td>
+        <td class="py-2 px-4">09:10 AM</td>
+        <td class="py-2 px-4 text-red-600 font-semibold">Late</td>
+      </tr>
+      <tr class="border-b hover:bg-gray-50 transition">
+        <td class="py-2 px-4">Aruna Chitta</td>
+        <td class="py-2 px-4">2200030092</td>
+        <td class="py-2 px-4">09:00 AM</td>
+        <td class="py-2 px-4 text-green-600 font-semibold">Present</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ================== DASHBOARD CHARTS JS ================== -->
+<script>
+const textColor = getComputedStyle(document.body).getPropertyValue('--text-color');
+const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary-color');
+const ctx1 = document.getElementById('attendanceChart');
+const ctx2 = document.getElementById('absenteesChart');
+const ctx3 = document.getElementById('deptChart');
+
+// 🟣 Attendance Chart
+new Chart(ctx1, {
+  type: 'bar',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [{
+      label: 'Attendance (%)',
+      data: [85,90,88,20,25,65,63,71,60,94,92,96],
+      backgroundColor: primaryColor,
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: textColor } } },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: textColor } },
+      x: { ticks: { color: textColor } }
     }
-    .banner-button:hover {
-      background-color: #ff5722;
-      color: #ffffff;
-      transform: scale(1.05);
+  }
+});
+
+// 🔴 Absentees Chart
+new Chart(ctx2, {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [{
+      label: 'Absentees (%)',
+      data: [15,10,12,30,58,11,7,9,10,6,8,4],
+      borderColor: '#DC2626',
+      backgroundColor: 'rgba(220,38,38,0.1)',
+      borderWidth: 2,
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#DC2626'
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: textColor } } },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: textColor } },
+      x: { ticks: { color: textColor } }
     }
-  </style>
-</head>
+  }
+});
 
-<body class="bg-gradient-to-r from-blue-500 via-teal-500 to-purple-600 text-white font-sans">
-
-  <!-- Header Section -->
-  <header class="text-center py-10">
-    <h1 class="text-5xl font-bold mb-6">Admin Dashboard</h1>
-    <p class="text-lg mb-6">Manage Attendance and Students</p>
-  </header>
-
-  <!-- Buttons Section -->
-  <main class="text-center mb-10">
-    <a href="{% url 'view_attendance' %}" class="banner-button inline-block">
-      View Attendance
-    </a>
-    <a href="{% url 'add_face' %}" class="banner-button inline-block">
-      Add Face Data
-    </a>
-    <a href="{% url 'view_students' %}" class="banner-button inline-block">
-      View All Students
-    </a>
-    <a href="{% url 'admin_logout' %}" class="banner-button inline-block bg-red-600 text-white hover:bg-red-700">
-      Logout
-    </a>
-  </main>
-
-  <!-- Footer -->
-  <footer class="text-center fixed bottom-0 left-1/2 transform -translate-x-1/2 mb-4 text-sm text-white">
-    &copy; 2025 Sirisha. All Rights Reserved.
-  </footer>
-
-</body>
-</html>
+// 🟣 Department Donut Chart
+new Chart(ctx3, {
+  type: 'doughnut',
+  data: {
+    labels: ['CSE', 'ECE', 'EEE', 'MECH', 'CIVIL'],
+    datasets: [{
+      label: 'Department Attendance (%)',
+      data: [79, 66, 68, 40, 57],
+      backgroundColor: ['#6D28D9', '#7C3AED', '#A78BFA', '#C4B5FD', '#E9D5FF'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom', labels: { color: textColor } }
+    }
+  }
+});
+</script>
+{% endblock %}
