@@ -6,25 +6,43 @@
 <!-- Filters -->
 <div class="bg-card text-main rounded-xl shadow p-6 mb-8 border border-main">
   <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <!-- Date Filter -->
     <div>
-      <label class="font-semibold text-main mb-1 block">Date</label>
+      <label class="font-semibold text-main mb-1 block">Select Date</label>
       <input type="date" name="date" value="{{ selected_date }}"
         class="w-full border border-main rounded-md p-2 bg-input focus:ring focus:ring-purple-300 outline-none">
     </div>
 
+    <!-- Regd Number Filter -->
     <div>
-      <label class="font-semibold text-main mb-1 block">Student Name</label>
-      <input type="text" name="name" placeholder="Search by name" value="{{ selected_name }}"
+      <label class="font-semibold text-main mb-1 block">Registration Number</label>
+      <input type="text" name="regd_no" placeholder="Search by Regd No"
+        value="{{ selected_regd|default:'' }}"
         class="w-full border border-main rounded-md p-2 bg-input focus:ring focus:ring-purple-300 outline-none">
     </div>
 
+    <!-- Apply Button -->
     <div class="flex items-end">
-      <button type="submit" class="bg-primary hover:bg-primary text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300 w-full">
+      <button type="submit"
+        class="bg-primary hover:bg-primary text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300 w-full">
         Apply
       </button>
     </div>
+
   </form>
+
+  <!-- Clear Filters Button -->
+  {% if selected_date or selected_regd %}
+    <div class="mt-4 text-right">
+      <a href="{% url 'view_attendance' %}"
+        class="text-sm font-semibold text-red-600 hover:underline">
+        Clear Filters
+      </a>
+    </div>
+  {% endif %}
 </div>
+
 
 <!-- Stats Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
@@ -47,25 +65,111 @@
 </div>
 
 <!-- Attendance Cards -->
-{% if students %}
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for student in students %}
-      <a href="{% url 'student_detail' student.name %}" class="block">
-        <div class="bg-card text-main rounded-xl shadow p-6 flex flex-col items-center border border-main hover:scale-105 transition duration-200">
-          {% if student.image_base64 %}
-            <img src="data:image/jpeg;base64,{{ student.image_base64 }}" alt="{{ student.name }}"
-              class="w-24 h-24 rounded-full mb-4 object-cover border-4 border-purple-500 shadow-md">
+{% if mode == "default" %}
+  <h2 class="text-xl font-semibold text-main mb-4">All Registered Students</h2>
+  <table class="w-full border">
+    <tr class="bg-gray-100">
+      <th class="p-2 text-left">Photo</th>
+      <th class="p-2 text-left">Regd No</th>
+      <th class="p-2 text-left">Name</th>
+      <th class="p-2 text-left">Department</th>
+    </tr>
+    {% for s in students %}
+      <tr class="border-b">
+        <td class="p-2">
+          {% if s.image_base64 %}
+            <img src="data:image/jpeg;base64,{{ s.image_base64 }}" 
+                 class="w-12 h-12 rounded-full object-cover border border-main">
           {% else %}
-            <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 mb-4">No Image</div>
+            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+              No Image
+            </div>
           {% endif %}
-          <h2 class="text-lg font-semibold text-primary">{{ student.name }}</h2>
-          <p class="text-sm text-main">Last Seen:</p>
-          <p class="text-sm font-medium text-main">{{ student.last_timestamp }}</p>
-        </div>
-      </a>
+        </td>
+        <td class="p-2">{{ s.regd_no }}</td>
+        <td class="p-2">{{ s.name }}</td>
+        <td class="p-2">{{ s.department }}</td>
+      </tr>
     {% endfor %}
-  </div>
-{% else %}
-  <p class="text-center text-main mt-8">No attendance records found.</p>
+  </table>
 {% endif %}
+
+{% if mode == "date" %}
+  <h2 class="text-xl font-semibold text-main mb-4">Attendance on {{ selected_date }}</h2>
+
+  <table class="w-full border">
+    <tr class="bg-gray-100">
+      <th class="p-2 text-left">Photo</th>
+      <th class="p-2 text-left">Regd No</th>
+      <th class="p-2 text-left">Name</th>
+      <th class="p-2 text-left">Status</th>
+      <th class="p-2 text-left">Timestamp</th>
+    </tr>
+
+    {% for r in attendance_list %}
+      <tr class="border-b">
+        <td class="p-2">
+          {% if r.image_base64 %}
+            <img src="data:image/jpeg;base64,{{ r.image_base64 }}" 
+                 class="w-12 h-12 rounded-full object-cover border border-main">
+          {% else %}
+            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
+              No Image
+            </div>
+          {% endif %}
+        </td>
+
+        <td class="p-2">{{ r.regd_no }}</td>
+        <td class="p-2">{{ r.name }}</td>
+
+        <!-- STATUS WITH ICONS -->
+        <td class="p-2">
+          {% if r.status == "Present" %}
+            <span class="text-green-600 font-bold">✔ Present</span>
+          {% else %}
+            <span class="text-red-600 font-bold">✘ Absent</span>
+          {% endif %}
+        </td>
+
+        <td class="p-2">{{ r.timestamp }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endif %}
+
+
+{% if mode == "card" %}
+  <!-- MODE 3: Single student card -->
+  <div class="flex justify-center">
+    <div class="bg-card rounded-xl shadow p-6 flex flex-col items-center border border-main">
+      {% if student.image_base64 %}
+        <img src="data:image/jpeg;base64,{{ student.image_base64 }}"
+          class="w-28 h-28 rounded-full mb-4 border-4 border-purple-500">
+      {% endif %}
+
+      <h2 class="text-xl font-bold text-main">{{ student.name }}</h2>
+      <p class="text-sm text-main">Regd No: {{ student.regd_no }}</p>
+      <p class="text-sm text-main">Department: {{ student.department }}</p>
+
+      <a href="{% url 'student_detail' student.name %}"
+        class="mt-4 bg-primary hover:bg-purple-700 text-white py-2 px-4 rounded-lg">
+        View Full Attendance
+      </a>
+    </div>
+  </div>
+{% endif %}
+
+
+{% if mode == "default" and not students %}
+  <p class="text-center text-main mt-8">No registered students found.</p>
+{% endif %}
+
+{% if mode == "date" and not attendance_list %}
+  <p class="text-center text-main mt-8">No attendance records found for this date.</p>
+{% endif %}
+
+{% if mode == "card" and not student %}
+  <p class="text-center text-main mt-8">Student not found.</p>
+{% endif %}
+
 {% endblock %}

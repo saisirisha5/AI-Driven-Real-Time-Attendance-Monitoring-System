@@ -182,70 +182,101 @@ def view_attendance(request):
     print("Fetching attendance data...")
 
     selected_date = request.GET.get('date')
-    selected_name = request.GET.get('name')
+    selected_regd = request.GET.get('regd_no')
 
     today = datetime.now().strftime("%Y-%m-%d")
-    target_date = selected_date or today
 
-    # --- Fetch all students ---
-    student_ref = db.collection('students').stream()
-    student_data = [s.to_dict() for s in student_ref]
-    student_images = {s.get('name'): s.get('image_base64') for s in student_data}
+    # ---- Fetch all students ----
+    students_ref = db.collection('students').stream()
+    student_data = [s.to_dict() for s in students_ref]
+    student_map = {s["regd_no"]: s for s in student_data}
+
     total_students = len(student_data)
 
-    # --- Fetch attendance records for that date ---
-    attendance_ref = db.collection('attendance_records').where('date', '==', target_date).stream()
-    attendance_data = [r.to_dict() for r in attendance_ref]
+    # -------------------------------------------------------------
+    # MODE 3 — REGD NO ONLY (Show only one student's card)
+    # -------------------------------------------------------------
+    if selected_regd and not selected_date:
+        student = student_map.get(selected_regd)
 
-    # --- Apply name filter ---
-    if selected_name:
-        attendance_data = [r for r in attendance_data if selected_name.lower() in r.get('name', '').lower()]
+        context = {
+            "mode": "card",
+            "student": student,
+            "selected_regd": selected_regd,
+            "selected_date": selected_date,
+            "total_students": total_students,
+        }
+        return render(request, "view_attendance.html", context)
 
-    present_students = {r['name']: r for r in attendance_data if r.get('status', 'Present') == 'Present'}
-    all_names = {s['name'] for s in student_data}
-    absent_students = all_names - set(present_students.keys())
+    # -------------------------------------------------------------
+    # MODE 2 — DATE ONLY (Show full attendance list)
+    # -------------------------------------------------------------
+    if selected_date and not selected_regd:
+        target_date = selected_date
 
-    students = []
+        # Fetch attendance for that date
+        attendance_docs = (
+            db.collection("attendance_records")
+            .where("date", "==", target_date)
+            .stream()
+        )
+        attendance_data = [r.to_dict() for r in attendance_docs]
 
-    # Present students
-    for name, record in present_students.items():
-        students.append({
-            'name': name,
-            'last_timestamp': record.get('timestamp'),
-            'image_base64': student_images.get(name),
-            'status': 'Present'
-        })
+        present_regd = {r["regd_no"] for r in attendance_data}
+        all_regd = set(student_map.keys())
+        absent_regd = all_regd - present_regd
 
-    # Absent students
-    for name in absent_students:
-        students.append({
-            'name': name,
-            'last_timestamp': 'N/A',
-            'image_base64': student_images.get(name),
-            'status': 'Absent'
-        })
+        attendance_list = []
 
-    # --- Attendance analytics ---
-    todays_present = len(present_students)
-    todays_absent = len(absent_students)
+        # Present students
+        for r in attendance_data:
+            regd = r["regd_no"]
+            st = student_map.get(regd, {})
+            attendance_list.append({
+                "regd_no": regd,
+                "name": st.get("name"),
+                "department": st.get("department"),
+                "timestamp": r.get("timestamp"),
+                "status": "Present",
+                "image_base64": st.get("image_base64"),
+            })
 
-    month_str = datetime.now().strftime("%Y-%m")
-    monthly_records = db.collection('attendance_records').where('date', '>=', f"{month_str}-01").stream()
-    monthly_records = [r.to_dict() for r in monthly_records]
-    monthly_present = len({f"{r['name']}-{r['date']}" for r in monthly_records if r.get('status', 'Present') == 'Present'})
-    monthly_percentage = round((monthly_present / (total_students * 30)) * 100, 2) if total_students else 0
+        # Absentees
+        for regd in sorted(absent_regd):
+            st = student_map.get(regd, {})
+            attendance_list.append({
+                "regd_no": regd,
+                "name": st.get("name"),
+                "department": st.get("department"),
+                "timestamp": "N/A",
+                "status": "Absent",
+                "image_base64": st.get("image_base64"),
+            })
+
+        # Sort by regd_no
+        attendance_list.sort(key=lambda x: x["regd_no"])
+
+        context = {
+            "mode": "date",
+            "attendance_list": attendance_list,
+            "selected_date": selected_date,
+            "total_students": total_students,
+        }
+        return render(request, "view_attendance.html", context)
+
+    # -------------------------------------------------------------
+    # MODE 1 — NO FILTERS (Default: all registered students)
+    # -------------------------------------------------------------
+    student_list = sorted(student_data, key=lambda x: x["regd_no"])
 
     context = {
-        'students': students,
-        'selected_date': target_date,
-        'selected_name': selected_name,
-        'total_students': total_students,
-        'todays_present': todays_present,
-        'todays_absent': todays_absent,
-        'monthly_percentage': monthly_percentage,
+        "mode": "default",
+        "students": student_list,
+        "total_students": total_students,
+        "selected_date": selected_date,
+        "selected_regd": selected_regd,
     }
-
-    return render(request, 'view_attendance.html', context)
+    return render(request, "view_attendance.html", context)
 
 
 def delete_student(request, regd_no):
