@@ -25,9 +25,14 @@ async def recognize(image: UploadFile = File(...)):
     # Delete temp image
     os.remove(temp_filename)
 
-    if not name:
-        return JSONResponse({"recognized": False, "message": "No face found"})
+    # ⛔ CASE: no face OR unknown face
+    if name is None or regd_no is None:
+        return JSONResponse({
+            "recognized": False,
+            "message": "Face not recognized"
+        })
 
+    # Mark attendance only for known students
     marked = mark_attendance(name, regd_no)
 
     return {
