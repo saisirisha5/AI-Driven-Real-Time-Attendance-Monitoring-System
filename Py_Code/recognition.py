@@ -43,12 +43,12 @@ def recognize_face(image_path):
 
     matches = face_recognition.compare_faces(known_encodings, face)
     distances = face_recognition.face_distance(known_encodings, face)
-    best_match = np.argmin(distances)
+    best_match = int(np.argmin(distances))
 
     if matches[best_match]:
         name = known_names[best_match]
         regd_no = known_regd[best_match]
-        confidence = 1 - distances[best_match]  # higher = better
+        confidence = 1 - distances[best_match]
         return name, regd_no, round(float(confidence), 3)
 
     return None, None, 0.0

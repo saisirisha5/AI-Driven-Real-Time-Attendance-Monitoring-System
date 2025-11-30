@@ -1,108 +1,74 @@
-#include <WebServer.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
 #include <esp32cam.h>
- 
+
 const char* WIFI_SSID = "PRABHALA HOME-2.4G";
 const char* WIFI_PASS = "siva@2000";
- 
-WebServer server(80);
- 
- 
-static auto loRes = esp32cam::Resolution::find(320, 240);
-static auto midRes = esp32cam::Resolution::find(350, 530);
-static auto hiRes = esp32cam::Resolution::find(800, 600);
-void serveJpg()
-{
-  auto frame = esp32cam::capture();
-  if (frame == nullptr) {
-    Serial.println("CAPTURE FAIL");
-    server.send(503, "", "");
-    return;
-  }
-  Serial.printf("CAPTURE OK %dx%d %db\n", frame->getWidth(), frame->getHeight(),
-                static_cast<int>(frame->size()));
- 
-  server.setContentLength(frame->size());
-  server.send(200, "image/jpeg");
-  WiFiClient client = server.client();
-  frame->writeTo(client);
-}
- 
-void handleJpgLo()
-{
-  if (!esp32cam::Camera.changeResolution(loRes)) {
-    Serial.println("SET-LO-RES FAIL");
-  }
-  serveJpg();
-}
- 
-void handleJpgHi()
-{
-  if (!esp32cam::Camera.changeResolution(hiRes)) {
-    Serial.println("SET-HI-RES FAIL");
-  }
-  serveJpg();
-}
- 
-void handleJpgMid()
-{
-  if (!esp32cam::Camera.changeResolution(midRes)) {
-    Serial.println("SET-MID-RES FAIL");
-  }
-  serveJpg();
-}
- 
- 
-void setup(){
+
+// FastAPI endpoint
+String SERVER_URL = "http://192.168.1.40:8000/recognize";
+
+// ----- Use LOW RES to avoid reboot -----
+static auto lowRes = esp32cam::Resolution::find(320, 240);
+
+void setup() {
   Serial.begin(115200);
-  Serial.println();
+  Serial.println("");
 
-  {
-    using namespace esp32cam;
-    Config cfg;
-    cfg.setPins(pins::AiThinker);
-    cfg.setResolution(hiRes);
-    cfg.setBufferCount(2);
-    cfg.setJpeg(80);
+  using namespace esp32cam;
+  Config cfg;
+  cfg.setPins(pins::AiThinker);
+  cfg.setResolution(lowRes);  // SAFE!
+  cfg.setJpeg(80);
+  cfg.setBufferCount(2);
 
-    bool ok = Camera.begin(cfg);
-    Serial.println(ok ? "CAMERA OK" : "CAMERA FAIL");
-    if (!ok) {
-      while (true); // halt if camera fails
-    }
-  }
+  bool ok = Camera.begin(cfg);
+  Serial.println(ok ? "CAMERA OK" : "CAMERA FAIL");
+  if (!ok) while (true);
 
-  WiFi.persistent(false);
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-  int retries = 0;
-  while (WiFi.status() != WL_CONNECTED && retries < 20) {
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    retries++;
   }
 
+  Serial.println("\nWiFi connected!");
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("\nWiFi FAILED to connect!");
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    delay(2000);
     return;
   }
 
-  Serial.print("\nConnected! IP: http://");
-  Serial.println(WiFi.localIP());
-  Serial.println("  /cam-lo.jpg");
-  Serial.println("  /cam-hi.jpg");
-  Serial.println("  /cam-mid.jpg");
+  auto frame = esp32cam::Camera.capture();
+  if (!frame) {
+    Serial.println("Capture failed");
+    delay(100);
+    return;
+  }
 
-  server.on("/cam-lo.jpg", handleJpgLo);
-  server.on("/cam-hi.jpg", handleJpgHi);
-  server.on("/cam-mid.jpg", handleJpgMid);
+  Serial.printf("Frame OK: %dx%d (%d bytes)\n",
+                frame->getWidth(),
+                frame->getHeight(),
+                frame->size());
 
-  server.begin();
+  HTTPClient http;
+  http.begin(SERVER_URL);
+  http.addHeader("Content-Type", "image/jpeg");
+
+  int response = http.POST(frame->data(), frame->size());
+
+  Serial.print("Server Response: ");
+  Serial.println(response);
+
+  http.end();
+  delay(300);
 }
 
- 
-void loop()
-{
-  server.handleClient();
-}
