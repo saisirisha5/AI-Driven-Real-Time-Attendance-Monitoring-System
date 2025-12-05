@@ -23,7 +23,7 @@
 ---
 
 ## System Architecture  
-![System Architecture](./Static/Architecture.jpeg)
+![System Architecture](./Static/Architecture_latest.png)
 
 ---
 
@@ -83,9 +83,6 @@ It is intended **for demonstration and academic reference only**.
 
 - ❌ Do **not fork**, **clone**, or **redistribute** this repository.  
 - ❌ Strictly no reuse of code or architecture without permission.  
-
-📬 For permissions or collaboration:  
-📧 **prabhalasaisirisha25@gmail.com**
 
 📄 Read **[LICENSE.txt](./LICENSE.txt)** for complete terms.  
 
